@@ -22,8 +22,17 @@ func NewHandler (q *pgstore.Queries) http.Handler {
 	}
 	
 	r: chi.NewRouter()
-	r.User(middleware.RequestID, middleware.Logger, middleware.Recoverer)
+	r.User(middleware.RequestID, middleware.Recoverer, middleware.Logger)
 
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"}, // Lembrando que o asterístico é para que qualquer site faça a requisição para api.
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+	
 	r.Get("/subscribe/{room_id}", a.handleSubscribe)
 
 	r.Route("/api", func(r chi.Router) {
