@@ -4,12 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+
+	"github.com/lfrclnando/tech-go-react-server.git/internal/api"
+	"github.com/lfrclnando/tech-go-react-server.git/internal/store/pgstore"
 )
 
 func main() {
@@ -39,7 +42,7 @@ func main() {
 
 	handler := api.NewHandler(pgstore.New(pool))
 
-	go func ()  {
+	go func() {
 		if err := http.ListenAndServe(":8080", handler); err != nil {
 			if !errors.Is(err, http.ErrServerClosed) {
 				panic(err)
@@ -48,6 +51,6 @@ func main() {
 	}()
 
 	quit := make(chan os.Signal, 1)
-	Signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt)
 	<-quit
 }
